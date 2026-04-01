@@ -85,3 +85,49 @@ jobs:
           # Gunakan cache dari image latest sebelumnya untuk mempercepat build
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:latest
           cache-to: type=inline
+
+  # ─────────────────────────────────────────
+  # Job 3: Deploy ke server
+  # ─────────────────────────────────────────
+  deploy:
+    name: Deploy ke Server
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_TAG
+          script: |
+            set -e
+
+            export IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+
+            echo ">>> Masuk ke direktori aplikasi..."
+            cd /cicd-laravel
+
+            echo ">>> Pull image terbaru: $IMAGE_TAG"
+            IMAGE_TAG=$IMAGE_TAG docker compose pull app
+
+            echo ">>> Jalankan migration di container sementara..."
+            IMAGE_TAG=$IMAGE_TAG docker compose run --rm app \
+              php artisan migrate --force
+
+            echo ">>> Restart container app dengan image baru..."
+            IMAGE_TAG=$IMAGE_TAG docker compose up -d --no-deps app
+
+            echo ">>> Tunggu container siap..."
+            sleep 5
+
+            echo ">>> Cek status container..."
+            docker compose ps
+
+            echo ">>> Bersihkan image lama yang tidak terpakai..."
+            docker image prune -f
+
+            echo ">>> Deploy berhasil! Image: $IMAGE_TAG"
