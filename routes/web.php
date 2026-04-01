@@ -15,3 +15,12 @@ Route::get('/hitung', function (Calculator $calc) {
         'hasil' => $hasil,
     ]);
 });
+
+Route::get('/tambah', function (Calculator $calc) {
+    $hasil = $calc->add(10, 15);
+
+    return response()->json([
+        'operasi' => '10 + 15',
+        'hasil' => $hasil,
+    ]);
+});
