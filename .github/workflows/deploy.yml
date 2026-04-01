@@ -109,7 +109,7 @@ jobs:
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
             echo ">>> Masuk ke direktori aplikasi..."
-            cd /cicd-laravel
+            cd /home/${{ secrets.SSH_USER }}/cicd-laravel
 
             echo ">>> Pull image terbaru: $IMAGE_TAG"
             IMAGE_TAG=$IMAGE_TAG docker compose pull app
