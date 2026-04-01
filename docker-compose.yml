@@ -1,6 +1,6 @@
 services:
   app:
-    image: ${DOCKERHUB_USERNAME}/cicd-laravel:${IMAGE_TAG:-latest}
+    image: ${DOCKERHUB_USERNAME}/devops-laravel-cicd-jti:${IMAGE_TAG:-latest}
     container_name: laravel_app
     restart: unless-stopped
     volumes:
