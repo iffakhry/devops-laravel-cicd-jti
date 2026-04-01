@@ -108,6 +108,10 @@ jobs:
             export IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
+            echo ">>> Login ke Docker Hub..."
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+
             echo ">>> Masuk ke direktori aplikasi..."
             cd /home/${{ secrets.SSH_USER }}/cicd-laravel
 
